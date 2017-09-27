@@ -83,7 +83,14 @@
 
 
                 var longScore = convolute(phrase, phrase + speechLower + phrase)
-                var score = longScore.slice(phrase.length, phrase.length + speech.length)
+
+                var score = []
+                for(var j = 0; j < speech.length; j++){
+                    var localMax = 0
+                    longScore.slice(j+spread*phrase.length,j+(1)*phrase.length).forEach(x => localMax = Math.max(localMax,x))
+                    score.push(localMax)
+                }
+
                 var maxCross = 0
                 crossScore.forEach(x => maxCross = Math.max(x, maxCross))
 
