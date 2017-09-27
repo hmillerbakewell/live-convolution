@@ -1,4 +1,9 @@
 <head>
+    <style>
+    pre {
+        white-space: pre-wrap;
+    }
+    </style>
     <script>
         var spread = 0.2
 
@@ -22,8 +27,8 @@
         }
 
         function colour(char, value) {
-            console.log(value)
-            var color = rgbToHex(255 * (1 - value), 255 * value, 0)
+            //console.log(value)
+            var color = rgbToHex(150*(1-value), 150*(1-value), 150*(1-value))
             return `<font color='${color}'>${char}</font>`
         }
 
@@ -40,15 +45,17 @@
                 return responseArray
             }
 
-            var averageLevel = 0
             var maxAdded = 1
 
             for (var i = 0; i < (b.length - a.length + 1); i++) {
                 var similarityHere = similarity(a, b.substr(i, a.length))
                 addToResponse(i, similarityHere)
-                averageLevel += similarityHere * a.length / b.length
                 maxAdded = Math.max(maxAdded, responseArray[i])
             }
+
+            var averageLevel = 0
+            responseArray.forEach(x => averageLevel +=x)
+            averageLevel = averageLevel / b.length
 
             rescale = x => x > averageLevel ? (x - averageLevel) / (maxAdded - averageLevel) : 0
 
@@ -96,7 +103,7 @@
                     finalScore = Math.max(finalScore, scores[j][i])
                 }
 
-                gate = x => x > 0 ? Math.min(x, 1) : 0
+                gate = x => x > 0.5 ? Math.min(x, 1) : 0
 
                 var constrainedScore = gate(finalScore)
 
@@ -106,6 +113,7 @@
 
             var finalText = ""
             for (var i = 0; i < speech.length; i++) {
+                var maxLocalValue
                 finalText += colour(speech[i], finalScores[i])
             }
             document.getElementById("output").innerHTML = finalText
@@ -113,20 +121,20 @@
     </script>
 </head>
 
-<body>
+<body onload="assessPhrases()">
     <div>
-        <textarea id="phrases">
+        <textarea id="phrases" onchange="assessPhrases()">
 phrase
 </textarea>
     </div>
     <div>
-        <textarea id="speech">
+        <textarea id="speech" onchange="assessPhrases()">
 Speech that contains phrase
 </textarea>
     </div>
     <div>
-        <span id="output">
+        <pre id="output">
 
-    </span>
+        </pre>
     </div>
 </body>
