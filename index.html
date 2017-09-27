@@ -20,7 +20,7 @@
         }
 
         function colour(char, value) {
-            //console.log(value)
+            console.log(value)
             var color = rgbToHex(255 * (1 - value), 255 * value, 0)
             return `<font color='${color}'>${char}</font>`
         }
@@ -39,15 +39,6 @@
             }
             for (var i = 0; i < (b.length - a.length + 1); i++) {
                 addToResponse(i, similarity(a, b.substr(i, a.length)))
-            }
-
-            // normalise responseArray
-            var sum = 0
-            responseArray.forEach(function (v) { sum += v })
-            if (sum > 0) {
-                for (var i = 0; i < responseArray.length; i++) {
-                    responseArray[i] = (responseArray[i] / a.length)
-                }
             }
             return responseArray
         }
@@ -75,8 +66,13 @@
                 for (var j = 0; j < scores.length; j++) {
                     finalScore = Math.max(finalScore, scores[j][i])
                 }
-                finalScores.push(finalScore)
-                maxScore = Math.max(finalScore, maxScore)
+
+                gate = x => x > 0.5 ? x : 0
+
+                var constrainedScore = gate(finalScore)
+
+                finalScores.push(constrainedScore)
+                maxScore = Math.max(constrainedScore, maxScore)
             }
 
             var finalText = ""
