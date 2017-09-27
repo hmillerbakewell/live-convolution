@@ -26,10 +26,10 @@
             return sum / overlap
         }
 
-        function colour(char, value) {
+        function colour(value) {
             //console.log(value)
             var color = rgbToHex(150*(1-value), 150*(1-value), 150*(1-value))
-            return `<font color='${color}'>${char}</font>`
+            return `<font color='${color}'>`
         }
 
         function convolute(a, b) {
@@ -112,10 +112,17 @@
             }
 
             var finalText = ""
+            var currentValue = -1
             for (var i = 0; i < speech.length; i++) {
-                var maxLocalValue
-                finalText += colour(speech[i], finalScores[i])
+                var newValue = finalScores[i]
+                if (newValue !== currentValue){
+                    finalText += "</font>"
+                    finalText += colour(finalScores[i])
+                    currentValue = newValue
+                }
+                finalText += speech[i]
             }
+            finalText += "</font>"
             document.getElementById("output").innerHTML = finalText
         }
     </script>
