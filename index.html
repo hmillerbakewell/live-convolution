@@ -3,10 +3,37 @@
         pre {
             white-space: pre-wrap;
         }
+
+        .inputBlock {
+            width: 500px;
+            height: 200px;
+            float: left;
+            margin: 20px;
+            overflow-y: auto;
+            border: 1px solid grey;
+        }
+
+        textarea {
+            width: 100%;
+            height: 100%;
+            margin: 0px;
+            resize: none;
+        }
+
+        .mainSpeech {
+            width: 1000px;
+            height: 800px;
+            margin: 20px;
+        }
+
+        .centerbox{
+            width: 1100px;
+            margin: 0px auto;
+        }
     </style>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="./jquery-3.2.1.slim.js"></script>
     <script>
-        var spread = 0.2
+        var spread = 0.15
 
         // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
         function componentToHex(c) {
@@ -66,8 +93,9 @@
         }
 
         function assessPhrases() {
-            var phraseBlock = document.getElementById("phrases").value.toLowerCase()
-            var speech = document.getElementById("speech").value
+            var phraseBlock = $('#phrasesText').val().trim().toLowerCase()
+            var phrases = phraseBlock.split('\n')
+            var speech = $('#speech').val()
             var speechLower = speech.toLowerCase()
             var phrases = phraseBlock.split('\n')
             document.getElementById("output").innerHTML = ""
@@ -88,7 +116,7 @@
                 var score = []
                 for (var j = 0; j < speech.length; j++) {
                     var localMax = 0
-                    longScore.slice(j + spread * phrase.length, j + (1) * phrase.length).forEach(x => localMax = Math.max(localMax, x))
+                    longScore.slice(j + (spread) * phrase.length + 1, j + (1) * phrase.length + 1).forEach(x => localMax = Math.max(localMax, x))
                     score.push(localMax)
                 }
 
@@ -131,32 +159,58 @@
                 finalText += speech[i]
             }
             finalText += "</font>"
-            document.getElementById("output").innerHTML = finalText
+            $('#output').html(finalText)
+        }
+
+
+        function hidePhrases() {
+
+            var phraseBlock = $('#phrasesText').val().trim()
+            var phrases = phraseBlock.split('\n')
+            $('#phrasesList ul').empty()
+            phrases.forEach(p => $('#phrasesList ul').append($('<li>').append(p)))
+            $('#phrasesText').hide()
+            $('#phrasesList').show()
+            assessPhrases()
+        }
+
+        function showPhrases() {
+            $('#phrasesText').show()
+            $('#phrasesList').hide()
         }
 
         $(document).ready(function () {
-
-            $('phrases').on("change", assessPhrases())
-            $('speech').on("change", assessPhrases())
-
+            $('#phrasesText').on('change', hidePhrases)
+            $('#phrasesList').on('click', showPhrases)
+            $('#speech').on('change', assessPhrases)
+            hidePhrases()
         })
     </script>
 </head>
 
 <body>
-    <div>
-        <textarea id="phrases">
+    <div class="centerbox">
+        <div class="inputBlock">
+            <textarea id="phrasesText">
 phrase
+click here to edit the phrases
+They are all on separate lines
 </textarea>
-    </div>
-    <div>
-        <textarea id="speech">
+            <div id="phrasesList">
+                <ul></ul>
+            </div>
+        </div>
+        <div class="inputBlock">
+            <textarea id="speech">
 Speech that contains phrase
+
+Copy and paste the actual speech into here!
 </textarea>
-    </div>
-    <div>
-        <pre id="output">
+        </div>
+        <div class="mainSpeech">
+            <pre id="output">
 
         </pre>
+        </div>
     </div>
 </body>
