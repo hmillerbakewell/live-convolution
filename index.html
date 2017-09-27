@@ -1,9 +1,10 @@
 <head>
     <style>
-    pre {
-        white-space: pre-wrap;
-    }
+        pre {
+            white-space: pre-wrap;
+        }
     </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script>
         var spread = 0.2
 
@@ -28,7 +29,7 @@
 
         function colour(value) {
             //console.log(value)
-            var color = rgbToHex(150*(1-value), 150*(1-value), 150*(1-value))
+            var color = rgbToHex(150 * (1 - value), 150 * (1 - value), 150 * (1 - value))
             return `<font color='${color}'>`
         }
 
@@ -54,7 +55,7 @@
             }
 
             var averageLevel = 0
-            responseArray.forEach(x => averageLevel +=x)
+            responseArray.forEach(x => averageLevel += x)
             averageLevel = averageLevel / b.length
 
             rescale = x => x > averageLevel ? (x - averageLevel) / (maxAdded - averageLevel) : 0
@@ -85,9 +86,9 @@
                 var longScore = convolute(phrase, phrase + speechLower + phrase)
 
                 var score = []
-                for(var j = 0; j < speech.length; j++){
+                for (var j = 0; j < speech.length; j++) {
                     var localMax = 0
-                    longScore.slice(j+spread*phrase.length,j+(1)*phrase.length).forEach(x => localMax = Math.max(localMax,x))
+                    longScore.slice(j + spread * phrase.length, j + (1) * phrase.length).forEach(x => localMax = Math.max(localMax, x))
                     score.push(localMax)
                 }
 
@@ -95,7 +96,7 @@
                 crossScore.forEach(x => maxCross = Math.max(x, maxCross))
 
                 for (var j = 0; j < score.length; j++) {
-                    score[j] = score[j] / Math.max(maxCross,1)
+                    score[j] = score[j] / Math.max(maxCross, 1)
                 }
 
                 scores.push(score)
@@ -122,7 +123,7 @@
             var currentValue = -1
             for (var i = 0; i < speech.length; i++) {
                 var newValue = finalScores[i]
-                if (newValue !== currentValue){
+                if (newValue !== currentValue) {
                     finalText += "</font>"
                     finalText += colour(finalScores[i])
                     currentValue = newValue
@@ -132,17 +133,24 @@
             finalText += "</font>"
             document.getElementById("output").innerHTML = finalText
         }
+
+        $(document).ready(function () {
+
+            $('phrases').on("change", assessPhrases())
+            $('speech').on("change", assessPhrases())
+
+        })
     </script>
 </head>
 
-<body onload="assessPhrases()">
+<body>
     <div>
-        <textarea id="phrases" onchange="assessPhrases()">
+        <textarea id="phrases">
 phrase
 </textarea>
     </div>
     <div>
-        <textarea id="speech" onchange="assessPhrases()">
+        <textarea id="speech">
 Speech that contains phrase
 </textarea>
     </div>
