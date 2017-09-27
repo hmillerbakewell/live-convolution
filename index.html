@@ -1,5 +1,7 @@
 <head>
     <script>
+        var spread = 0.2
+
         // https://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
         function componentToHex(c) {
             var hex = Math.floor(c).toString(16);
@@ -30,17 +32,29 @@
             var responseArray = new Array(b.length + 1).join('0').split('').map(parseFloat)
 
             addToResponse = function (place, amount) {
-                for (var j = 0; j < a.length; j++) {
+                for (var j = 0; j < Math.floor(1 + a.length * spread); j++) {
                     responseArray[place + j] += amount
                 }
             }
             if (a.length > b.length) {
                 return responseArray
             }
+
+            var averageLevel = 0
+            var maxAdded = 1
+
             for (var i = 0; i < (b.length - a.length + 1); i++) {
-                addToResponse(i, similarity(a, b.substr(i, a.length)))
+                var similarityHere = similarity(a, b.substr(i, a.length))
+                addToResponse(i, similarityHere)
+                averageLevel += similarityHere * a.length / b.length
+                maxAdded = Math.max(maxAdded, responseArray[i])
             }
-            return responseArray
+
+            rescale = x => x > averageLevel ? (x - averageLevel) / (maxAdded - averageLevel) : 0
+
+            rescaled = []
+            responseArray.forEach(x => rescaled.push(rescale(x)))
+            return rescaled
         }
 
         function assessPhrases() {
@@ -53,8 +67,23 @@
             var scores = []
 
             for (var i = 0; i < phrases.length; i++) {
-                var phrase = phrases[i]
-                var score = convolute(phrase, speechLower)
+                var phrase = phrases[i].trim()
+
+                // cross-score of phrase with itself
+                var padding = new Array(phrase.length + 1).join(" ")
+                var padded = padding + phrase + padding
+                var crossScore = convolute(phrase, padded)
+
+
+                var longScore = convolute(phrase, phrase + speechLower + phrase)
+                var score = longScore.slice(phrase.length, phrase.length + speech.length)
+                var maxCross = 0
+                crossScore.forEach(x => maxCross = Math.max(x, maxCross))
+
+                for (var j = 0; j < score.length; j++) {
+                    score[j] = score[j] / Math.max(maxCross,1)
+                }
+
                 scores.push(score)
             }
 
@@ -67,7 +96,7 @@
                     finalScore = Math.max(finalScore, scores[j][i])
                 }
 
-                gate = x => x > 0.5 ? x : 0
+                gate = x => x > 0 ? Math.min(x, 1) : 0
 
                 var constrainedScore = gate(finalScore)
 
@@ -77,7 +106,7 @@
 
             var finalText = ""
             for (var i = 0; i < speech.length; i++) {
-                finalText += colour(speech[i], finalScores[i] / maxScore)
+                finalText += colour(speech[i], finalScores[i])
             }
             document.getElementById("output").innerHTML = finalText
         }
